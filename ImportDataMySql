@@ -1,0 +1,43 @@
+// Replace the variables in this block with real values.
+var start = new Date();
+var address = '54.144.137.181:3306';
+var user = 'paim_bi';
+//var userPwd = ‘#tk71Id5’;
+var db = 'paim_bi';
+var dbUrl = 'jdbc:mysql://' + address + '/' + db;
+
+// Read up to 1000 rows of data from the table and log them.
+function readFromTable() {
+  
+  var conn = Jdbc.getConnection(dbUrl, user, '#tk71Id5'); // ok
+  var start = new Date();
+  var stmt = conn.createStatement(); //ok
+  var results = stmt.executeQuery('select * from audiencias limit 500');
+  var metaData=results.getMetaData();
+  var numCols = results.getMetaData().getColumnCount();
+  var spreadsheet = SpreadsheetApp.getActive();
+  var sheet_ = spreadsheet.getActiveSheet();
+  var arr=[];
+   
+  sheet_.clearContents();
+  
+  // adiciona as colunas
+  for (var col = 0; col < numCols; col++) { arr.push(metaData.getColumnName(col + 1)); }
+  sheet_.appendRow(arr);
+  
+  // adiciona os dados das colunas
+  while (results.next()) {
+    arr=[];
+    for (var col = 0; col < numCols; col++) { arr.push(results.getString(col + 1)); }
+    sheet_.appendRow(arr);
+  }
+  
+  results.close();
+  stmt.close();
+  sheet_.autoResizeColumns(1, numCols+1);
+ }
+
+ Logger.log('Execução encerrada')
+ var end = new Date();
+ Logger.log('Time elapsed: %sms', end - start);
+ 
